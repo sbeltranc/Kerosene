@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  token: MyString
+  account: one
+  last_seen_at: 2025-05-26 18:16:44
+  ip: MyString
+  created_at: 2025-05-26 18:16:44
+
+two:
+  token: MyString
+  account: two
+  last_seen_at: 2025-05-26 18:16:44
+  ip: MyString
+  created_at: 2025-05-26 18:16:44
