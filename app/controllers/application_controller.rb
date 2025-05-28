@@ -1,6 +1,10 @@
 class ApplicationController < ActionController::API
   include ActionController::Cookies
 
+  def route_not_found
+    render json: respond_with_error(0, "NotFound"), status: :not_found
+  end
+
   def respond_with_error(code, message)
     {
       errors: [
@@ -41,16 +45,14 @@ class ApplicationController < ActionController::API
     session = Session.find_by(token: token)
 
     if session
+      if session.ip != request.remote_ip
+        session.destroy
+        cookies.delete(".ROBLOSECURITY")
+        return nil
+      end
+
       session.update(last_seen_at: Time.current)
       session.account
-    else
-      nil
-    end
-  end
-
-  def requires_authentication!
-    unless current_account
-      render json: respond_with_error(0, "User is not authenticated"), status: :forbidden
     end
   end
 end

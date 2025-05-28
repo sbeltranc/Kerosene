@@ -2,6 +2,8 @@ Rails.application.routes.draw do
   get "up" => "rails/health#show", as: :rails_health_check
 
   namespace :v1 do
+    get "user/currency", to: "economy#currency"
+
     get "gender", to: "users#gender"
     get "birthdate", to: "users#birthdate"
     get "description", to: "users#description"
@@ -27,8 +29,11 @@ Rails.application.routes.draw do
   namespace :v2 do
     post "login", to: "auth#login"
     post "signup", to: "auth#signup"
+    post "logout", to: "auth#logout"
+    post "logoutfromallsessionsandreauthenticate", to: "auth#logout_from_all_sessions_and_reauthenticate"
   end
 
   # Defines the root path route ("/")
   # root "posts#index"
+  match "*unmatched", to: "application#route_not_found", via: :all
 end

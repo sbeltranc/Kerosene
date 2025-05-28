@@ -62,7 +62,7 @@ class V2::AuthController < ApplicationController
 
     # checking if the password is correct
     if account.authenticate(password)
-      session_token = SecureRandom.hex(16)
+      session_token = SecureRandom.hex(128)
 
       Session.create!(
         ip: request.remote_ip,
@@ -104,13 +104,28 @@ class V2::AuthController < ApplicationController
       return nil
     end
 
-    if username.nil? || username.empty? || username.length < 3 || username.length > 20
+    if username.nil? || username.empty? || username.length < 3 || username.length > 20 || !username.match?(/\A[a-zA-Z0-9](?:[a-zA-Z0-9_]*[a-zA-Z0-9])?\z/)
       render json: respond_with_error(5, "Invalid Username."), status: :forbidden
       return nil
     end
 
-    if password.nil? || password.empty? || password.length < 6 || password.length > 20
+    if password.nil? || password.empty?
       render json: respond_with_error(7, "Invalid Password."), status: :forbidden
+      return nil
+    end
+
+    # verifying the password strength
+    if !password.match?(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,20}$/)
+      render json: respond_with_error(7, "Password must be between 6 and 20 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character."), status: :forbidden
+      return nil
+    end
+
+    # check if email comes from known mail providers
+    known_email_providers = [ "gmail.com", "yahoo.com", "outlook.com", "hotmail.com", "icloud.com" ]
+    email_domain = email.split("@").last
+
+    if !known_email_providers.include?(email_domain)
+      render json: respond_with_error(10, "Email provider is not supported.")
       return nil
     end
 
@@ -144,7 +159,7 @@ class V2::AuthController < ApplicationController
     )
 
     if account.save
-      session_token = SecureRandom.hex(16)
+      session_token = SecureRandom.hex(128)
 
       Session.create!(
         account: account,
@@ -164,6 +179,46 @@ class V2::AuthController < ApplicationController
       }, status: :created
     else
       render json: respond_with_error(0, "Service unavailable"), status: :internal_server_error
+    end
+  end
+
+  # POST /v2/logout
+  def logout
+    if current_account
+      session.destroy
+      cookies.delete(".ROBLOSECURITY")
+      render json: {}, status: :ok
+    else
+      render json: respond_with_error(0, "Authorization has been denied for this request."), status: :unauthorized
+    end
+  end
+
+  # POST /v2/logoutfromallsessionsandreauthenticate
+  def logout_from_all_sessions_and_reauthenticate
+    if current_account
+      Session.where(account: current_account).destroy_all
+      cookies.delete(".ROBLOSECURITY")
+
+      session_token = SecureRandom.hex(128)
+
+      Session.create!(
+        account: current_account,
+        token: session_token,
+        ip: request.remote_ip,
+        last_seen_at: Time.current,
+      )
+
+      cookies[:'.ROBLOSECURITY'] = {
+        value: session_token,
+        httponly: true,
+        secure: Rails.env.production? || false
+      }
+
+      render json: {
+        userId: current_account.id
+      }, status: :ok
+    else
+      render json: respond_with_error(0, "Authorization has been denied for this request."), status: :unauthorized
     end
   end
 end
