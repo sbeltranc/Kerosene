@@ -3,6 +3,11 @@ Rails.application.routes.draw do
 
   namespace :v1 do
     get "user/currency", to: "economy#currency"
+    get "asset", to: "assetdelivery#asset"
+    get "assetId/:assetId", to: "assetdelivery#assetId"
+    get "assetId/:assetId/version/:version", to: "assetdelivery#assetIdByVersion"
+    get "marAssetHash/:marAssetHash/marCheckSum/:marCheckSum", to: "assetdelivery#assetByMar"
+    post "assets/batch", to: "assetdelivery#batch"
 
     get "gender", to: "users#gender"
     get "birthdate", to: "users#birthdate"

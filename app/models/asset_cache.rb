@@ -1,0 +1,2 @@
+class AssetCache < ApplicationRecord
+end
