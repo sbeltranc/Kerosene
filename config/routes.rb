@@ -2,6 +2,12 @@ Rails.application.routes.draw do
   get "up" => "rails/health#show", as: :rails_health_check
 
   namespace :v1 do
+    get "asset", to: "assetdelivery#asset"
+    get "assetId/:assetId", to: "assetdelivery#assetId"
+    get "assetId/:assetId/version/:version", to: "assetdelivery#assetIdByVersion"
+    get "marAssetHash/:marAssetHash/marCheckSum/:marCheckSum", to: "assetdelivery#assetByMar"
+    post "assets/batch", to: "assetdelivery#batch"
+
     get "gender", to: "users#gender"
     get "birthdate", to: "users#birthdate"
     get "description", to: "users#description"

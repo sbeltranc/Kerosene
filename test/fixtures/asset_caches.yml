@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  assetid: MyString
+  filehash: MyString
+  assettypeid: 1
+  token: MyString
+  expiration: 2025-05-27 20:48:07
+
+two:
+  assetid: MyString
+  filehash: MyString
+  assettypeid: 1
+  token: MyString
+  expiration: 2025-05-27 20:48:07
