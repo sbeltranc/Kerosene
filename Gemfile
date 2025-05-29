@@ -1,7 +1,7 @@
 source "https://rubygems.org"
 
 gem "bcrypt", "~> 3.1.7"
-gem "aws-sdk-s3", "~> 1.136"
+gem "aws-sdk-s3", "~> 1.187"
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem "rails", "~> 8.0.2"
