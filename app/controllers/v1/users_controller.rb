@@ -32,6 +32,10 @@ class V1::UsersController < ApplicationController
 
   # POST /v1/description
   def update_description
+    if !is_allowed_todo_action
+      return
+    end
+
     if current_account
       new_description = params[:description]
 
@@ -67,7 +71,7 @@ class V1::UsersController < ApplicationController
         displayName: current_account.username,
         description: current_account.description,
         created: current_account.created_at.iso8601,
-        isBanned: false
+        isBanned: current_account.is_account_banned
       }
     else
       render json: respond_with_error(0, "User not authenticated"), status: :unauthorized

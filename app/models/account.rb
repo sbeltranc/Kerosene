@@ -19,4 +19,28 @@ class Account < ApplicationRecord
   def is_account_verified
     self.verified || false
   end
+
+  def is_account_banned
+    punishment = self.punishments.where(confirmed: false).order(created_at: :desc).first
+
+    if punishment
+      punishment.expires_at && punishment.expires_at > Time.current
+    end
+
+    false
+  end
+
+  def is_account_allowed
+    if self.email_verified
+      render json: respond_with_error(0, "User must verify their email before doing this action."), status: :forbidden
+      false
+    end
+
+    if self.is_account_banned
+      render json: respond_with_error(0, "User is banned."), status: :forbidden
+      false
+    end
+
+    true
+  end
 end

@@ -10,6 +10,10 @@ class V1::EconomyController < ApplicationController
   end
 
   def give_stipend_if_due(account)
+    if account.is_account_allowed
+      return nil
+    end
+
     if account.last_stipend_at.nil? || account.last_stipend_at < 24.hours.ago
       base_stipend = 250
 

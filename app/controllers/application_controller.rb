@@ -55,23 +55,4 @@ class ApplicationController < ActionController::API
       session.account
     end
   end
-
-  def is_allowed_todo_action
-    if current_account.nil?
-      render json: respond_with_error(0, "Authorization has been denied for this request."), status: :unauthorized
-      false
-    end
-
-    if current_account.is_account_verified == false
-      render json: respond_with_error(0, "User is required to verify his email to do this action."), status: :forbidden
-      false
-    end
-
-    if current_account.punishments.active.exists?
-      render json: respond_with_error(0, "User Moderated."), status: :forbidden
-      false
-    end
-
-    true
-  end
 end
