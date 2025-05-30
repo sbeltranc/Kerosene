@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  account: one
+  expires_at: 2025-05-29 20:52:13
+  type: 1
+
+two:
+  account: two
+  expires_at: 2025-05-29 20:52:13
+  type: 1

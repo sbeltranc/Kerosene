@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_05_27_231849) do
+ActiveRecord::Schema[8.0].define(version: 2025_05_30_021400) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -25,6 +25,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_27_231849) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.datetime "last_stipend_at"
+    t.boolean "verified", default: false, null: false
   end
 
   create_table "active_storage_attachments", force: :cascade do |t|
@@ -55,6 +56,42 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_27_231849) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
+  create_table "asset_caches", force: :cascade do |t|
+    t.string "assetid"
+    t.string "filehash"
+    t.integer "assettypeid"
+    t.string "token"
+    t.datetime "expiration"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "assets", force: :cascade do |t|
+    t.string "name"
+    t.string "description"
+    t.bigint "creator_id", null: false
+    t.string "s3hash"
+    t.string "marhash"
+    t.string "marchecksum"
+    t.integer "version", default: 1
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "latest_version"
+    t.bigint "parent_asset_version_id"
+    t.string "creator_type"
+    t.bigint "creator_target_id"
+    t.index ["creator_id"], name: "index_assets_on_creator_id"
+  end
+
+  create_table "memberships", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.datetime "expires_at"
+    t.integer "type"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_memberships_on_account_id"
+  end
+
   create_table "past_usernames", force: :cascade do |t|
     t.string "username"
     t.bigint "account_id", null: false
@@ -62,6 +99,18 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_27_231849) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["account_id"], name: "index_past_usernames_on_account_id"
+  end
+
+  create_table "punishments", force: :cascade do |t|
+    t.string "simuldev_id"
+    t.datetime "expires_at"
+    t.string "reason"
+    t.integer "type"
+    t.boolean "confirmed"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "account_id", null: false
+    t.index ["account_id"], name: "index_punishments_on_account_id"
   end
 
   create_table "roles", force: :cascade do |t|
@@ -85,7 +134,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_27_231849) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "assets", "accounts", column: "creator_id"
+  add_foreign_key "memberships", "accounts"
   add_foreign_key "past_usernames", "accounts"
+  add_foreign_key "punishments", "accounts"
   add_foreign_key "roles", "accounts"
   add_foreign_key "sessions", "accounts"
 end

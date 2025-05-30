@@ -11,7 +11,21 @@ class V1::EconomyController < ApplicationController
 
   def give_stipend_if_due(account)
     if account.last_stipend_at.nil? || account.last_stipend_at < 24.hours.ago
-      account.update(balance: account.balance + 250, last_stipend_at: Time.current)
+      base_stipend = 250
+
+      multiplier = case account.active_membership&.membership_type
+      when 1 then 2.0 # Builders Club
+      when 2 then 2.5 # Turbo Builders Club
+      when 3 then 3.0 # Outrageous Builders Club
+      else 1          # No membership
+      end
+
+      stipend = base_stipend * multiplier
+
+      account.update!(
+        balance: account.balance + stipend,
+        last_stipend_at: Time.current
+      )
     end
   end
 end
