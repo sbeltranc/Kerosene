@@ -11,6 +11,7 @@ class V1::AssetdeliveryController < ApplicationController
     version = params[:version] || params[:assetVersionId]
     
     return render json: respond_with_error(1, "Asset ID is required"), status: :bad_request unless asset_id.present?
+    return render json: respond_with_error(1, "Invalid Asset ID format"), status: :bad_request unless asset_id.match?(/\A\d{1,10}\z/)
 
     asset = Asset.find_by(id: asset_id)
 
@@ -31,7 +32,8 @@ class V1::AssetdeliveryController < ApplicationController
         render json: respond_with_error(2, "Failed to retrieve asset"), status: :internal_server_error
       end
     else
-      roblox_uri = URI("https://apis.roblox.com/asset-delivery-api/v1/assetId/#{asset_id}")
+      base_url = "https://apis.roblox.com/asset-delivery-api/v1/assetId"
+      roblox_uri = URI("#{base_url}/#{URI.encode_www_form_component(asset_id)}")
       request = Net::HTTP::Get.new(roblox_uri)
       request['User-Agent'] = 'Roblox/WinInet'
       request['x-api-key'] = 'wIslT5Ffi0uZ5ml1jAL/drUeLybxEVedj1QsjqWveH091GgmZXlKaGJHY2lPaUpTVXpJMU5pSXNJbXRwWkNJNkluTnBaeTB5TURJeExUQTNMVEV6VkRFNE9qVXhPalE1V2lJc0luUjVjQ0k2SWtwWFZDSjkuZXlKaVlYTmxRWEJwUzJWNUlqb2lkMGx6YkZRMVJtWnBNSFZhTlcxc01XcEJUQzlrY2xWbFRIbGllRVZXWldScU1WRnphbkZYZG1WSU1Ea3hSMmR0SWl3aWIzZHVaWEpKWkNJNklqYzVPREU1T0RBeE5USWlMQ0poZFdRaU9pSlNiMkpzYjNoSmJuUmxjbTVoYkNJc0ltbHpjeUk2SWtOc2IzVmtRWFYwYUdWdWRHbGpZWFJwYjI1VFpYSjJhV05sSWl3aVpYaHdJam94TnpRME1UVXdPVGs0TENKcFlYUWlPakUzTkRReE5EY3pPVGdzSW01aVppSTZNVGMwTkRFME56TTVPSDAuYi1kcXFrWFNOMUtpcFZKZVhfTmFXRUh2bzl2MElFZEI4WnlXcGN1ejhncWFaQmhEYUZnWEwtNlBnOHlJQ3k4NWlhOUZfWmdSRXNYQ1VLelE2V0c1bVBndlBOWWlxbmpkYnJ5dEVCV1l4VVVqeHNVSmZ6LU1LQmUydGxTamY4Z0Yzc3VtNVd1bUNoeHBvVDlMS2lHRk5NN2tZZTdqVjlJM0tUNWFGSFZvRFRON0xzZ2EwSUQ4eGcteHZfekhIZGdjLW9jMk0taUxtSUlVZU1vb3lwb21xSGtkdTkwLVdxVVNUbWhBbjdlSWhhWnJ2ZmVKdGhiVTVuYlhsQlRmTmZmMDVFT0lkNElKaGswaHI3enJCTlBZZVhsZXpQMTBhSHlHeUFwcnB6MHFYVjRGVkZiSWpFV2V1bDFmc1htSFFLWTkxYjMtZFhINEJoR0ZEQUpYcUdJZ2h3'
