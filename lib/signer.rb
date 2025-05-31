@@ -20,7 +20,7 @@ class Signer
         signature = signer.sign(digest, data)
         base64_signature = Base64.strict_encode64(signature)
 
-        "--rbxsig%#{base64_signature}%#{data}"
+        "--rbxsig2%#{base64_signature}%#{data}"
       rescue => e
         Rails.logger.error "Failed to sign data: #{e}"
         raise "Failed to sign data"
