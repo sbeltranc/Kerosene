@@ -1,11 +1,13 @@
 class Account < ApplicationRecord
   has_secure_password
+  has_one_time_password
 
   has_many :roles, dependent: :destroy
   has_many :sessions, dependent: :destroy
   has_many :punishments, dependent: :destroy
   has_many :memberships, dependent: :destroy
   has_many :past_usernames, dependent: :destroy
+  has_many :two_step_verification_tickets, dependent: :destroy
 
   validates :username, presence: true, uniqueness: true
   validates :email, presence: true, uniqueness: true
@@ -31,7 +33,7 @@ class Account < ApplicationRecord
   end
 
   def is_account_allowed
-    if self.email_verified
+    if self.is_account_verified
       render json: respond_with_error(0, "User must verify their email before doing this action."), status: :forbidden
       false
     end

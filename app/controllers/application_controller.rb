@@ -52,6 +52,8 @@ class ApplicationController < ActionController::API
       end
 
       session.update(last_seen_at: Time.current)
+      session.account.update(last_seen_at: Time.current)
+      
       session.account
     end
   end

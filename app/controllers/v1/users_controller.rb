@@ -71,7 +71,8 @@ class V1::UsersController < ApplicationController
         displayName: current_account.username,
         description: current_account.description,
         created: current_account.created_at.iso8601,
-        isBanned: current_account.is_account_banned
+        isBanned: current_account.is_account_banned,
+        isVerified: current_account.verified
       }
     else
       render json: respond_with_error(0, "User not authenticated"), status: :unauthorized

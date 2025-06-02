@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  account: one
+  ticket: MyString
+  expires_at: 2025-05-31 22:07:58
+
+two:
+  account: two
+  ticket: MyString
+  expires_at: 2025-05-31 22:07:58

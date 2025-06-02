@@ -62,6 +62,26 @@ class V2::AuthController < ApplicationController
 
     # checking if the password is correct
     if account.authenticate(password)
+
+      if account.two_factor_enabled
+        two_step_verification_ticket = SecureRandom.hex(32)
+
+        TwoStepVerificationTicket.create!(
+          account: account,
+          ticket: two_step_verification_ticket,
+          expires_at: 10.minutes.from_now,
+        )
+        
+        render json: {
+          twoStepVerificationData: {
+            mediaType: "Email",
+            ticket: two_step_verification_ticket,
+          }
+        }, status: :ok
+  
+        return nil
+      end
+
       session_token = SecureRandom.hex(128)
 
       Session.create!(
@@ -143,7 +163,7 @@ class V2::AuthController < ApplicationController
     # validating the captcha
     if captchaToken.nil?
       render json: respond_with_error(2, "You must pass the robot test before signing up."), status: :forbidden
-      nil
+      return nil
     end
 
     # we are ready to go, let's create the account
@@ -177,8 +197,11 @@ class V2::AuthController < ApplicationController
       render json: {
         userId: account.id
       }, status: :created
+
+      nil
     else
       render json: respond_with_error(0, "Service unavailable"), status: :internal_server_error
+      nil
     end
   end
 
@@ -191,6 +214,159 @@ class V2::AuthController < ApplicationController
     else
       render json: respond_with_error(0, "Authorization has been denied for this request."), status: :unauthorized
     end
+  end
+
+  # POST /v2/username
+  def username
+    if current_account
+      # we are obtaining username and password
+      username = params[:username]
+      password = params[:password]
+
+      # sanity checks or something idfk
+      if password.nil? || password.empty?
+        render json: respond_with_error(3, "Your password is incorrect."), status: :forbidden
+        return nil
+      end
+
+      if !current_account.authenticate(password)
+        render json: respond_with_error(3, "Your password is incorrect."), status: :forbidden
+        return nil
+      end
+
+      if username.nil? || username.empty?
+        render json: respond_with_error(15, "Username is null"), status: :bad_request
+        return nil
+      end
+
+      # we are checking if the username is already taken
+      if Account.find_by(username: username)
+        render json: respond_with_error(10, "This username is already in use"), status: :bad_request
+        return nil
+      end
+
+      if username.length < 3 || username.length > 20
+        render json: respond_with_error(12, "Usernames can be 3 to 20 characters long"), status: :bad_request
+        return nil
+      end
+          
+      if !!username.match?(/\A[a-zA-Z0-9](?:[a-zA-Z0-9_]*[a-zA-Z0-9])?\z/)
+        render json: respond_with_error(14, "Only a-z, A-Z, 0-9, and _ are allowed"), status: :bad_request
+        return nil
+      end
+
+      if username == current_account.username
+        render json: respond_with_error(18, "Username is same as current"), status: :bad_request
+        return nil
+      end 
+          
+      # checking if account has more than 1000 on balance
+      if current_account.balance > 1000
+        render json: respond_with_error(5, "You don't have enough balance to change your username."), status: :bad_request
+        return nil
+      end
+
+      # we are changing the username
+      # first we create the username history
+
+      PastUsername.create!(
+        account: current_account,
+        username: current_account.username,
+        ismoderated: false,
+      )
+
+      current_account.update!(username: username)
+      current_account.update!(balance: current_account.balance - 1000)
+
+      render json: {}, status: :ok
+    else
+      render json: respond_with_error(0, "Authorization has been denied for this request."), status: :unauthorized
+    end
+  end
+
+  # POST /v2/twostepverification/verify
+  def verify_two_step_verification
+    code = params[:code]
+    ticket = params[:ticket]
+
+    if code.nil? || code.empty?
+      render json: respond_with_error(6, "The code is invalid."), status: :bad_request
+      return nil
+    end
+
+    if ticket.nil? || ticket.empty?
+      render json: respond_with_error(5, "Invalid two step verification ticket."), status: :bad_request
+      return nil
+    end
+
+    two_step_verification_ticket = TwoStepVerificationTicket.find_by(ticket: ticket)
+    account = two_step_verification_ticket.account
+
+    if two_step_verification_ticket.nil?
+      render json: respond_with_error(5, "Invalid two step verification ticket."), status: :bad_request
+      return nil
+    end
+
+    if two_step_verification_ticket.expires_at < Time.current
+      render json: respond_with_error(5, "Two step verification ticket expired."), status: :bad_request
+      return nil
+    end
+
+    if !account.valid_otp?(code)
+      render json: respond_with_error(6, "The code is invalid."), status: :bad_request
+      return nil
+    end
+
+    account_token = SecureRandom.hex(128)
+
+    Session.create!(
+      account: account,
+      token: account_token,
+      ip: request.remote_ip,
+      last_seen_at: Time.current,
+    )
+
+    cookies[:'.ROBLOSECURITY'] = {
+      value: account_token,
+      httponly: true,
+      secure: Rails.env.production? || false
+    }
+
+    render json: {}, status: :ok
+  end
+
+  # POST /v2/passwords/reset/send
+  def send_password_reset
+    target_type = params[:targetType]
+    target = params[:target]
+    captcha_token = params[:captchaToken]
+
+    # sanity checks before we proceed
+    if target_type.nil? || target_type.empty? || ![ "Email" ].include?(target_type)
+      render json: respond_with_error(9, "The target type is invalid."), status: :bad_request
+      return nil
+    end
+
+    if target.nil? || target.empty? || !URI::MailTo::EMAIL_REGEXP.match?(target)
+      render json: respond_with_error(9, "The target is invalid."), status: :bad_request
+      return nil
+    end
+
+    if captcha_token.nil? || captcha_token.empty?
+      render json: respond_with_error(2, "You must pass the robot test before resetting your password."), status: :bad_request
+      return nil
+    end
+
+    # let's look up the email, if it exists on our database, we wont show anyways if it was sent or not lol.
+    account = Account.find_by(email: target)
+
+    if account.nil?
+      render json: { nonce: nil, transmissionType: target_type }, status: :ok
+      return nil
+    end
+
+    # sending the email
+
   end
 
   # POST /v2/logoutfromallsessionsandreauthenticate
