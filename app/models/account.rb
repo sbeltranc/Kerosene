@@ -9,6 +9,9 @@ class Account < ApplicationRecord
   has_many :past_usernames, dependent: :destroy
   has_many :two_step_verification_tickets, dependent: :destroy
 
+  has_many :sent_friend_requests, class_name: "Friend", foreign_key: :sent_by_id, dependent: :destroy
+  has_many :received_friend_requests, class_name: "Friend", foreign_key: :sent_to_id, dependent: :destroy
+
   validates :username, presence: true, uniqueness: true
   validates :email, presence: true, uniqueness: true
   validates :balance, numericality: true

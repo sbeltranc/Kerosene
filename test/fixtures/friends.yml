@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  sent_by: one
+  sent_to: one
+  status: MyString
+
+two:
+  sent_by: two
+  sent_to: two
+  status: MyString

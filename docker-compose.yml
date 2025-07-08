@@ -1,0 +1,47 @@
+services:
+  app:
+    container_name: kerosene
+    restart: unless-stopped
+    image: 'ghcr.io/sbeltranc/kerosene:latest'
+    environment:
+      - RAILS_MASTER_KEY=${RAILS_MASTER_KEY}
+    env_file:
+      - .env
+    depends_on:
+      - db
+    networks:
+      - kerosene_network
+
+  db:
+    container_name: kerosene_db
+    restart: unless-stopped
+    image: "postgres:latest"
+    volumes:
+      - kerosene_db_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 60s
+      retries: 5
+      start_period: 60s
+    networks:
+      - kerosene_network
+  
+  tunnel:
+    container_name: kerosene_tunnel
+    image: "cloudflare/cloudflared:latest"
+    restart: unless-stopped
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_ZERO_TRUST_TOKEN}
+    networks:
+      - kerosene_network
+      
+volumes:
+  kerosene_db_data:
+    external: false
+
+networks:
+  kerosene_network: null
