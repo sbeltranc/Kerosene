@@ -1,24 +1,24 @@
-# README
+# Kerosene
+just pretty much a remake of the Roblox APIs with Ruby on Rails & PostgreSQL
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+## how to run?
+1. clone the repo
+```sh
+git clone https://github.com/sbeltranc/Kerosene
+```
 
-Things you may want to cover:
+2. create a .env file with the next
+```sh
+RAILS_MASTER_KEY=
+CLOUDFLARE_ZERO_TRUST_TOKEN=
+```
 
-* Ruby version
+3. configure the credentials with the respective wanted data
+```sh
+rails credentials:edit
+```
 
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+4. run the images
+```
+docker compose up -d
+```
