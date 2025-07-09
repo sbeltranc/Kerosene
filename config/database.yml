@@ -29,11 +29,13 @@ production:
   primary: &primary_production
     <<: *default
     host: db
+    username: postgres
     database: kerosene_production
     password: <%= Rails.application.credentials.dig(:database, :primary_password) %>
   cache:
     <<: *primary_production
     host: db
+    username: postgres
     port: <%= Rails.application.credentials.dig(:database, :secondary_port) %>
     #password: <%= Rails.application.credentials.dig(:database, :secondary_password) %>
     database: kerosene_production_cache
@@ -41,6 +43,7 @@ production:
   queue:
     <<: *primary_production
     host: db
+    username: postgres
     port: <%= Rails.application.credentials.dig(:database, :secondary_port) %>
     #password: <%= Rails.application.credentials.dig(:database, :secondary_password) %>
     database: kerosene_production_queue
@@ -48,6 +51,7 @@ production:
   cable:
     <<: *primary_production
     host: db
+    username: postgres
     port: <%= Rails.application.credentials.dig(:database, :secondary_port) %>
     #password: <%= Rails.application.credentials.dig(:database, :secondary_password) %>
     database: kerosene_production_cable
