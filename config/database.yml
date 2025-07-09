@@ -8,8 +8,8 @@ development:
   database: kerosene_development
 
   username: postgres
-  password: kerosene
-  host: localhost
+  #password: kerosene
+  host: db
 
   # The TCP port the server listens on. Defaults to 5432.
   #port: 5432
@@ -20,35 +20,35 @@ development:
 
 test:
   <<: *default
-  host: localhost
+  host: db
   username: postgres
-  password: kerosene
+  #password: kerosene
   database: kerosene_test
 
 production:
   primary: &primary_production
     <<: *default
-    host: localhost
+    host: db
     database: kerosene_production
     password: <%= Rails.application.credentials.dig(:database, :primary_password) %>
   cache:
     <<: *primary_production
-    host: localhost
+    host: db
     port: <%= Rails.application.credentials.dig(:database, :secondary_port) %>
-    password: <%= Rails.application.credentials.dig(:database, :secondary_password) %>
+    #password: <%= Rails.application.credentials.dig(:database, :secondary_password) %>
     database: kerosene_production_cache
     migrations_paths: db/cache_migrate
   queue:
     <<: *primary_production
-    host: localhost
+    host: db
     port: <%= Rails.application.credentials.dig(:database, :secondary_port) %>
-    password: <%= Rails.application.credentials.dig(:database, :secondary_password) %>
+    #password: <%= Rails.application.credentials.dig(:database, :secondary_password) %>
     database: kerosene_production_queue
     migrations_paths: db/queue_migrate
   cable:
     <<: *primary_production
-    host: localhost
+    host: db
     port: <%= Rails.application.credentials.dig(:database, :secondary_port) %>
-    password: <%= Rails.application.credentials.dig(:database, :secondary_password) %>
+    #password: <%= Rails.application.credentials.dig(:database, :secondary_password) %>
     database: kerosene_production_cable
     migrations_paths: db/cable_migrate
