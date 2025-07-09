@@ -31,6 +31,7 @@ production:
     host: db
     username: postgres
     database: kerosene_production
+    port: 5432
     password: <%= Rails.application.credentials.dig(:database, :primary_password) %>
   cache:
     <<: *primary_production
