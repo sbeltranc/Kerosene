@@ -22,3 +22,8 @@ rails credentials:edit
 ```
 docker compose up -d
 ```
+
+## faq/tips
+- you're supposed to run all migrations from rails with `rails db:migrate`
+- you'll have to generate your own rails master key and create your own encrypted settings
+- it's highly recommended to host this, if **you know what you're doing**, running this by default won't be as much use as knowing what this does
