@@ -2,6 +2,8 @@ services:
   app:
     container_name: kerosene
     restart: unless-stopped
+    ports:
+      - 3000:3000
     image: 'ghcr.io/sbeltranc/kerosene:latest'
     environment:
       - RAILS_MASTER_KEY=${RAILS_MASTER_KEY}
