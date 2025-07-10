@@ -6,7 +6,7 @@ default: &default
 development:
   <<: *default
   database: kerosene_development
-
+  port: 5432
   username: postgres
   #password: kerosene
   host: db
@@ -22,6 +22,7 @@ test:
   <<: *default
   host: db
   username: postgres
+  port: 5432
   #password: kerosene
   database: kerosene_test
 
@@ -37,7 +38,7 @@ production:
     <<: *primary_production
     host: db
     username: postgres
-    port: <%= Rails.application.credentials.dig(:database, :secondary_port) %>
+    port: 5432
     #password: <%= Rails.application.credentials.dig(:database, :secondary_password) %>
     database: kerosene_production_cache
     migrations_paths: db/cache_migrate
@@ -45,7 +46,7 @@ production:
     <<: *primary_production
     host: db
     username: postgres
-    port: <%= Rails.application.credentials.dig(:database, :secondary_port) %>
+    port: 5432
     #password: <%= Rails.application.credentials.dig(:database, :secondary_password) %>
     database: kerosene_production_queue
     migrations_paths: db/queue_migrate
@@ -53,7 +54,7 @@ production:
     <<: *primary_production
     host: db
     username: postgres
-    port: <%= Rails.application.credentials.dig(:database, :secondary_port) %>
+    port: 5432
     #password: <%= Rails.application.credentials.dig(:database, :secondary_password) %>
     database: kerosene_production_cable
     migrations_paths: db/cable_migrate
