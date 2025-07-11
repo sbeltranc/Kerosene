@@ -9,7 +9,7 @@ development:
   port: 5432
   username: postgres
   #password: kerosene
-  host: db
+  host: localhost
 
   # The TCP port the server listens on. Defaults to 5432.
   #port: 5432
@@ -20,7 +20,7 @@ development:
 
 test:
   <<: *default
-  host: db
+  host: localhost
   username: postgres
   port: 5432
   #password: kerosene

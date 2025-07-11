@@ -38,7 +38,6 @@ Rails.application.routes.draw do
     post "logoutfromallsessionsandreauthenticate", to: "auth#logout_from_all_sessions_and_reauthenticate"
   end
 
-  # Defines the root path route ("/")
-  # root "posts#index"
+  root "application#left_blank", via: :all
   match "*unmatched", to: "application#route_not_found", via: :all
 end

@@ -1,6 +1,10 @@
 class ApplicationController < ActionController::API
   include ActionController::Cookies
 
+  def left_blank
+    render plain: "This page was left blank on purpose, utilize the Roblox Services APIs documentation for using the routes (https://apidocs.sixteensrc.zip/)", status: :ok
+  end
+
   def route_not_found
     render json: respond_with_error(0, "NotFound"), status: :not_found
   end
@@ -53,7 +57,7 @@ class ApplicationController < ActionController::API
 
       session.update(last_seen_at: Time.current)
       session.account.update(last_seen_at: Time.current)
-      
+
       session.account
     end
   end
