@@ -11,7 +11,32 @@ There is no specific usage base, you can use Kerosene for multiple stuff, but it
 
 The best way to use it for "fun" is by going to [a docs archive from the Roblox API](https://apidocs.sixteensrc.zip/), and seeing how the requests are done for some apis on Users and Auth (there's only v1 on the Kerosene Users Service and v2 for the Kerosene Auth Service)
 
-This can be actually really useful if you know what you're doing with this, and this can be useless or just a fun thing to play with if you really don't have any idea what this could be used for.
+Here's an example for obtaining someone user data on the API:
+```js
+const res = await fetch("https://users.simuldev.com/v1/users/1")
+const data = await res.json()
+
+console.log(data);
+```
+
+This will return the User Id 1 information if it was created on the Kerosene API already, else it'll return `{"errors":[{"code":0,"message":"User not found","userFacingMessage":"User not found"}]}`
+
+And now here's an example for creating an account
+```js
+const res = await fetch("https://users.simuldev.com/v2/signup", {
+  method: "POST",
+  body: JSON.stringify({
+    username: "santiago",
+    password: "!@$I!wswv0ajansA.a.sa",
+    email: "santiago@gmail.com", // no other services are allowed for security reasons, check the v2/auth_controller.rb for more info
+    captchaToken: "can be anything, its not checked on the current simuldev.com"
+  })
+});
+```
+
+The response will return `{ "userId": number }` if succesful and will set-cookie .ROBLOSECURITY as the session cookie for your account, congrants! You can now use this cookie for accesing authenticated APIs.
+
+This can be actually really useful if you know what you're doing with this, and this can be useless or just a fun thing to play with if you really don't have any idea what this could be used for, it's recommendable just to stick with the Users API as it's the most easiest and understandable + web user friendly.
 
 ## how to run?
 1. clone the repo
