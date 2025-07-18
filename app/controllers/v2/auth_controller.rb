@@ -119,7 +119,7 @@ class V2::AuthController < ApplicationController
     captchaToken = params[:captchaToken]
 
     # checking if the parameters are present for authentication
-    if email.nil? || !URI::MailTo::EMAIL_REGEXP.match?(email)
+    if email.nil?
       render json: respond_with_error(10, "Email is invalid."), status: :forbidden
       return nil
     end
@@ -139,16 +139,7 @@ class V2::AuthController < ApplicationController
       render json: respond_with_error(7, "Password must be between 6 and 20 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character."), status: :forbidden
       return nil
     end
-
-    # check if email comes from known mail providers
-    known_email_providers = [ "gmail.com", "yahoo.com", "outlook.com", "hotmail.com", "icloud.com" ]
-    email_domain = email.split("@").last
-
-    if !known_email_providers.include?(email_domain)
-      render json: respond_with_error(10, "Email provider is not supported.")
-      return nil
-    end
-
+    
     # check if email or username already exists
     if Account.find_by(username: username)
       render json: respond_with_error(4, "Username already taken."), status: :forbidden
