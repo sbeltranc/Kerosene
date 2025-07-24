@@ -71,14 +71,14 @@ class V2::AuthController < ApplicationController
           ticket: two_step_verification_ticket,
           expires_at: 10.minutes.from_now,
         )
-        
+
         render json: {
           twoStepVerificationData: {
             mediaType: "Email",
-            ticket: two_step_verification_ticket,
+            ticket: two_step_verification_ticket
           }
         }, status: :ok
-  
+
         return nil
       end
 
@@ -119,7 +119,7 @@ class V2::AuthController < ApplicationController
     captchaToken = params[:captchaToken]
 
     # checking if the parameters are present for authentication
-    if email.nil?
+    if email.nil? || !URI::MailTo::EMAIL_REGEXP.match?(email)
       render json: respond_with_error(10, "Email is invalid."), status: :forbidden
       return nil
     end
@@ -139,7 +139,16 @@ class V2::AuthController < ApplicationController
       render json: respond_with_error(7, "Password must be between 6 and 20 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character."), status: :forbidden
       return nil
     end
-    
+
+    # check if email comes from known mail providers
+    known_email_providers = [ "gmail.com", "yahoo.com", "outlook.com", "hotmail.com", "icloud.com" ]
+    email_domain = email.split("@").last
+
+    if !known_email_providers.include?(email_domain)
+      render json: respond_with_error(10, "Email provider is not supported.")
+      return nil
+    end
+
     # check if email or username already exists
     if Account.find_by(username: username)
       render json: respond_with_error(4, "Username already taken."), status: :forbidden
@@ -240,7 +249,7 @@ class V2::AuthController < ApplicationController
         render json: respond_with_error(12, "Usernames can be 3 to 20 characters long"), status: :bad_request
         return nil
       end
-          
+
       if !!username.match?(/\A[a-zA-Z0-9](?:[a-zA-Z0-9_]*[a-zA-Z0-9])?\z/)
         render json: respond_with_error(14, "Only a-z, A-Z, 0-9, and _ are allowed"), status: :bad_request
         return nil
@@ -249,8 +258,8 @@ class V2::AuthController < ApplicationController
       if username == current_account.username
         render json: respond_with_error(18, "Username is same as current"), status: :bad_request
         return nil
-      end 
-          
+      end
+
       # checking if account has more than 1000 on balance
       if current_account.balance > 1000
         render json: respond_with_error(5, "You don't have enough balance to change your username."), status: :bad_request
@@ -353,11 +362,10 @@ class V2::AuthController < ApplicationController
 
     if account.nil?
       render json: { nonce: nil, transmissionType: target_type }, status: :ok
-      return nil
+      nil
     end
 
     # sending the email
-
   end
 
   # POST /v2/logoutfromallsessionsandreauthenticate

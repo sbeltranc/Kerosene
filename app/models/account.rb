@@ -1,6 +1,5 @@
 class Account < ApplicationRecord
   has_secure_password
-  has_one_time_password
 
   has_many :roles, dependent: :destroy
   has_many :sessions, dependent: :destroy
