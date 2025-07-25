@@ -25,6 +25,9 @@ And now here's an example for creating an account
 ```js
 const res = await fetch("https://users.simuldev.com/v2/signup", {
   method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
   body: JSON.stringify({
     username: "santiago",
     password: "!@$I!wswv0ajansA.a.sa",
